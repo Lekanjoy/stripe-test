@@ -1,25 +1,36 @@
-const express = require('express');
-const Stripe = require('stripe');
-const dotenv = require('dotenv');
-const cors = require('cors');
+const express = require("express");
+const Stripe = require("stripe");
+const dotenv = require("dotenv");
+const cors = require("cors");
 
 dotenv.config();
 
 const app = express();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-app.use(cors());
+// CORS configuration
+const corsOptions = {
+  origin: process.env.FRONTEND_URL,
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
-app.post('/create-checkout-session', async (req, res) => {
+// New endpoint to get the publishable key
+app.get("/config", (req, res) => {
+  res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
+});
+
+app.post("/create-checkout-session", async (req, res) => {
   const { items, eventId } = req.body;
 
   try {
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
-      line_items: items.map(item => ({
+      payment_method_types: ["card"],
+      line_items: items.map((item) => ({
         price_data: {
-          currency: 'gbp',
+          currency: "gbp",
           product_data: {
             name: item.name,
           },
@@ -27,9 +38,9 @@ app.post('/create-checkout-session', async (req, res) => {
         },
         quantity: item.quantity,
       })),
-      mode: 'payment',
-      success_url: `${process.env.DOMAIN}/success.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.DOMAIN}/cancel.html`,
+      mode: "payment",
+      success_url: `${process.env.FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel.html`,
       metadata: {
         eventId: eventId,
       },
@@ -42,7 +53,7 @@ app.post('/create-checkout-session', async (req, res) => {
 });
 
 // New endpoint to retrieve session details
-app.get('/checkout-session', async (req, res) => {
+app.get("/checkout-session", async (req, res) => {
   const { sessionId } = req.query;
 
   try {
