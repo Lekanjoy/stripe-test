@@ -16,15 +16,69 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.raw({ type: "application/json" })); // Required for Stripe webhook validation
+app.use(express.json()); // Apply JSON middleware globally (except webhook)
 
-// New endpoint to get the publishable key
-app.get("/config", (req, res) => {
-  res.json({ publishableKey: process.env.STRIPE_PUBLISHABLE_KEY });
-});
+// Webhook route
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    const sig = req.headers["stripe-signature"];
+    let event;
 
-// Create Checkout Session
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        process.env.STRIPE_WEBHOOK_SECRET
+      );
+    } catch (err) {
+      console.error("Webhook Error:", err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === "checkout.session.completed") {
+      const session = event.data.object;
+
+      // Extract payment details
+      const customerEmail =
+        session.customer_details?.email || "No Email Provided";
+      const customerName = session.customer_details?.name || "No Name Provided";
+      const amountPaid = (session.amount_total / 100).toFixed(2); // Convert from cents
+      const currency = session.currency.toUpperCase();
+      const eventName = session.metadata?.eventName || "Unknown Event";
+      const items = session.metadata?.items
+        ? JSON.parse(session.metadata.items)
+        : [];
+
+      // Format purchased items list
+      let itemsList = items
+        .map(
+          (item) =>
+            `<p><strong>${item.name}</strong> - £${item.price} x ${item.quantity}</p>`
+        )
+        .join("");
+
+      console.log(
+        `📨 Sending email for event: ${eventName}, Customer: ${customerEmail}`
+      );
+
+      // Send email notification
+      await sendEmail(
+        customerEmail,
+        customerName,
+        eventName,
+        itemsList,
+        amountPaid,
+        currency
+      );
+    }
+
+    res.status(200).send("Webhook received");
+  }
+);
+
+
 app.post("/create-checkout-session", async (req, res) => {
   const { items, eventName } = req.body;
 
@@ -54,53 +108,15 @@ app.post("/create-checkout-session", async (req, res) => {
   }
 });
 
-// Retrieve Session Details
-app.get("/checkout-session", async (req, res) => {
-  const { sessionId } = req.query;
-
-  try {
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
-    res.json(session);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
-  const sig = req.headers["stripe-signature"];
-
-  let event;
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error("Webhook Error:", err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  if (event.type === "checkout.session.completed") {
-    const session = event.data.object;
-
-    // Extract payment details
-    const customerEmail = session.customer_details.email;
-    const customerName = session.customer_details.name;
-    const amountPaid = session.amount_total / 100; // Convert from cents
-    const currency = session.currency.toUpperCase();
-    const eventName = session.metadata.eventName;
-    const items = JSON.parse(session.metadata.items);
-
-    // Format purchased items list
-    let itemsList = items.map(item => `<p><strong>${item.name}</strong> - £${item.price} x ${item.quantity}</p>`).join("");
-
-    // Send email notification
-    await sendEmail(customerEmail, customerName, eventName, itemsList, amountPaid, currency);
-  }
-
-  res.status(200).send("Webhook received");
-});
-
-
 // Function to Send Email
-const sendEmail = async (customerEmail, customerName, eventName, itemsList, amountPaid, currency) => {
+const sendEmail = async (
+  customerEmail,
+  customerName,
+  eventName,
+  itemsList,
+  amountPaid,
+  currency
+) => {
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
@@ -111,7 +127,7 @@ const sendEmail = async (customerEmail, customerName, eventName, itemsList, amou
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER, 
+    to: process.env.EMAIL_USER,
     subject: `New Payment for ${eventName}`,
     html: `
       <h2>Payment Confirmation</h2>
@@ -126,11 +142,11 @@ const sendEmail = async (customerEmail, customerName, eventName, itemsList, amou
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully!");
+    console.log("✅ Email sent successfully!");
   } catch (error) {
-    console.error("Error sending email:", error);
+    console.error("❌ Error sending email:", error);
   }
 };
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
