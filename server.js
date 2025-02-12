@@ -66,8 +66,7 @@ app.get("/checkout-session", async (req, res) => {
   }
 });
 
-// Stripe Webhook for Payment Success
-app.post("/webhook", async (req, res) => {
+app.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
   const sig = req.headers["stripe-signature"];
 
   let event;
@@ -81,7 +80,7 @@ app.post("/webhook", async (req, res) => {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
-    // Extract details
+    // Extract payment details
     const customerEmail = session.customer_details.email;
     const customerName = session.customer_details.name;
     const amountPaid = session.amount_total / 100; // Convert from cents
@@ -98,6 +97,7 @@ app.post("/webhook", async (req, res) => {
 
   res.status(200).send("Webhook received");
 });
+
 
 // Function to Send Email
 const sendEmail = async (customerEmail, customerName, eventName, itemsList, amountPaid, currency) => {
