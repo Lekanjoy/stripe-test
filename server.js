@@ -147,31 +147,39 @@ const sendEmail = async (
   currency
 ) => {
   const transporter = nodemailer.createTransport({
-    service: "Gmail",
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true, // Use SSL
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
 
+  // const mailOptions = {
+  //   from: process.env.EMAIL_USER,
+  //   to: process.env.EMAIL_USER,
+  //   subject: `New Payment for ${eventName}`,
+  //   html: `
+  //     <h2>Payment Confirmation</h2>
+  //     <p><strong>Event:</strong> ${eventName}</p>
+  //     <p><strong>Name:</strong> ${customerName}</p>
+  //     <p><strong>Email:</strong> ${customerEmail}</p>
+  //     <p><strong>Items Purchased:</strong></p>
+  //     ${itemsList}
+  //     <p><strong>Total Paid:</strong> £${amountPaid} ${currency}</p>
+  //   `,
+  // };
   const mailOptions = {
-    from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
-    subject: `New Payment for ${eventName}`,
-    html: `
-      <h2>Payment Confirmation</h2>
-      <p><strong>Event:</strong> ${eventName}</p>
-      <p><strong>Name:</strong> ${customerName}</p>
-      <p><strong>Email:</strong> ${customerEmail}</p>
-      <p><strong>Items Purchased:</strong></p>
-      ${itemsList}
-      <p><strong>Total Paid:</strong> £${amountPaid} ${currency}</p>
-    `,
+    from: 'alabilekanemmanuel@gmail.com',
+    to: 'alabilekanemmanuel@gmail.com',
+    subject: `Test Email`,
+    text: `This is a test email.`,
   };
 
   try {
-    await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully!");
+    const info = await transporter.sendMail(mailOptions);
+    console.log("✅ Email sent successfully!", info.response);
   } catch (error) {
     console.error("❌ Error sending email:", error);
   }
