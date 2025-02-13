@@ -2,7 +2,6 @@ const express = require("express");
 const Stripe = require("stripe");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const nodemailer = require("nodemailer");
 
 dotenv.config();
 
@@ -16,12 +15,20 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.use(express.json()); // Apply JSON middleware globally (except webhook)
 
-// Confirmation webhook
+// Apply JSON middleware globally (except for the webhook route)
+app.use((req, res, next) => {
+  if (req.originalUrl === "/webhook") {
+    next(); // Skip JSON parsing for the webhook route
+  } else {
+    express.json()(req, res, next); // Apply JSON parsing for all other routes
+  }
+});
+
+// Webhook route
 app.post(
   "/webhook",
-  express.raw({ type: "application/json" }),
+  express.raw({ type: "application/json" }), // Use raw middleware for webhook
   async (request, response) => {
     const sig = request.headers["stripe-signature"];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -75,7 +82,6 @@ ${item.name} - ${currency}${item.price} x ${item.quantity}
         );
       } catch (error) {
         console.error("Failed to send email:", error);
-        // Note: We're not returning a response here as we still want to acknowledge the webhook
       }
     }
 
