@@ -156,7 +156,7 @@ const sendEmail = async (
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER, 
     subject: `New Payment for ${eventName}`,
     html: `
        <h2>Payment Confirmation</h2>
@@ -170,16 +170,11 @@ const sendEmail = async (
   };
 
   try {
-    await transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        return console.log("Error occurred: ", error);
-      }
-      console.log("Email sent: ", info.response);
-    });
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent: ", info.response);
   } catch (error) {
-    console.error(error);
+    console.error("Error occurred while sending email: ", error);
   }
 };
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
