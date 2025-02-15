@@ -51,7 +51,8 @@ app.post(
       const customerEmail =
         session.customer_details?.email || "No Email Provided";
       const customerName = session.customer_details?.name || "No Name Provided";
-      const customerPhone = session.customer_details?.phone || "No Phone Provided";
+      const customerPhone =
+        session.customer_details?.phone || "No Phone Provided";
       const amountPaid = ((session.amount_total || 0) / 100).toFixed(2); // Convert from cents
       const currency = (session.currency || "usd").toUpperCase();
       const eventName = session.metadata?.eventName || "Unknown Event";
@@ -166,15 +167,33 @@ const sendEmail = async (
     to: process.env.EMAIL_USER,
     subject: `New Payment for ${eventName}`,
     html: `
-       <h2>Payment Confirmation</h2>
-       <p><strong>Event Name:</strong> ${eventName}</p>
-       <p><strong>Name:</strong> ${customerName}</p>
-       <p><strong>Email:</strong> ${customerEmail}</p>
-       <p><strong>Phone:</strong> ${customerPhone}</p>
-       <p><strong>Items Purchased:</strong></p>
-       ${itemsList}
-       <p><strong>Total Paid:</strong> ${amountPaid} ${currency}</p>
-     `,
+    <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+      <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+        <h2 style="color: #333333; margin-bottom: 20px;">Payment Confirmation</h2>
+        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+          <strong style="color: #333333;">Event:</strong> ${eventName}
+        </p>
+        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+          <strong style="color: #333333;">Name:</strong> ${customerName}
+        </p>
+        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+          <strong style="color: #333333;">Email:</strong> ${customerEmail}
+        </p>
+        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+          <strong style="color: #333333;">Phone:</strong> ${customerPhone}
+        </p>
+        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+          <strong style="color: #333333;">Items Purchased:</strong>
+        </p>
+        <div style="color: #555555; font-size: 14px; margin-bottom: 20px;">
+          ${itemsList}
+        </div>
+        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+          <strong style="color: #333333;">Total Paid:</strong> £${amountPaid} ${currency}
+        </p>
+      </div>
+    </div>
+  `,
   };
 
   try {
