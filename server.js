@@ -64,7 +64,7 @@ app.post(
       const itemsList = items
         .map(
           (item) => `
-${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
+- ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
 `
         )
         .join("");
@@ -168,6 +168,9 @@ const sendEmail = async (
     subject: `New Payment for ${eventName}`,
     html: `
     <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
+    <div style="text-align: center; margin-bottom: 20px; background-color: #ffffff;">
+    <img src="https://gohangers-new.vercel.app/assets/Home/GOHANGERS_Logotype-strap.png" alt="Gohangers Logo" style="width: 100px; height: auto;">
+    </div>
       <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
         <h2 style="color: #333333; margin-bottom: 20px;">Payment Confirmation</h2>
         <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
