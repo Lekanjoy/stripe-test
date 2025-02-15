@@ -63,7 +63,7 @@ app.post(
       const itemsList = items
         .map(
           (item) => `
-${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity})
+${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
 `
         )
         .join("");
