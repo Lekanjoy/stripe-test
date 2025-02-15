@@ -64,7 +64,7 @@ app.post(
       const itemsList = items
         .map(
           (item) => `
-- ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
+-- ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
 `
         )
         .join("");
@@ -184,10 +184,10 @@ const sendEmail = async (
       <strong style="color: #333333;">Email:</strong> ${customerEmail}
     </p>
     <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-      <strong style="color: #333333;">Phone:</strong> ${customerPhone}
+      <strong style="color: #333333;">Phone Number:</strong> ${customerPhone}
     </p>
     <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-      <strong style="color: #333333;">Items Purchased:</strong>
+      <strong style="color: #333333;">Select Product:</strong>
     </p>
     <div style="color: #555555; font-size: 14px; margin-bottom: 20px;">
       ${itemsList}
