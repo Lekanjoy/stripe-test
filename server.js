@@ -169,34 +169,34 @@ const sendEmail = async (
     subject: `New Payment for ${eventName}`,
     html: `
     <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
-    <a href="https://gohangers-new.vercel.app" style="text-align: center; padding: 4px; margin-bottom: 20px; background-color: #ffffff;">
+  <a href="https://gohangers-new.vercel.app" style="display: block; width: 100%; text-align: center; padding: 8px; margin-bottom: 20px; background-color: #ffffff;">
     <img src="https://gohangers-new.vercel.app/assets/Home/GOHANGERS_Logotype-strap.png" alt="Gohangers Logo" style="width: 100px; height: auto;">
-    </a>
-      <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
-        <h2 style="color: #333333; margin-bottom: 20px;">Payment Confirmation</h2>
-        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-          <strong style="color: #333333;">Event:</strong> ${eventName}
-        </p>
-        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-          <strong style="color: #333333;">Name:</strong> ${customerName}
-        </p>
-        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-          <strong style="color: #333333;">Email:</strong> ${customerEmail}
-        </p>
-        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-          <strong style="color: #333333;">Phone:</strong> ${customerPhone}
-        </p>
-        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-          <strong style="color: #333333;">Items Purchased:</strong>
-        </p>
-        <div style="color: #555555; font-size: 14px; margin-bottom: 20px;">
-          ${itemsList}
-        </div>
-        <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-          <strong style="color: #333333;">Total Paid:</strong> £${amountPaid} ${currency}
-        </p>
-      </div>
+  </a>
+  <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+    <h2 style="color: #333333; margin-bottom: 20px;">Payment Confirmation</h2>
+    <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+      <strong style="color: #333333;">Event:</strong> ${eventName}
+    </p>
+    <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+      <strong style="color: #333333;">Name:</strong> ${customerName}
+    </p>
+    <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+      <strong style="color: #333333;">Email:</strong> ${customerEmail}
+    </p>
+    <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+      <strong style="color: #333333;">Phone:</strong> ${customerPhone}
+    </p>
+    <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+      <strong style="color: #333333;">Items Purchased:</strong>
+    </p>
+    <div style="color: #555555; font-size: 14px; margin-bottom: 20px;">
+      ${itemsList}
     </div>
+    <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
+      <strong style="color: #333333;">Total Paid:</strong> £${amountPaid} ${currency}
+    </p>
+  </div>
+</div>
   `,
   };
 
