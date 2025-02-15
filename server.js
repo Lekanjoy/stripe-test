@@ -147,41 +147,37 @@ const sendEmail = async (
   currency
 ) => {
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true, // Use SSL
+    service: "gmail",
     auth: {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS,
     },
   });
 
-  // const mailOptions = {
-  //   from: process.env.EMAIL_USER,
-  //   to: process.env.EMAIL_USER,
-  //   subject: `New Payment for ${eventName}`,
-  //   html: `
-  //     <h2>Payment Confirmation</h2>
-  //     <p><strong>Event:</strong> ${eventName}</p>
-  //     <p><strong>Name:</strong> ${customerName}</p>
-  //     <p><strong>Email:</strong> ${customerEmail}</p>
-  //     <p><strong>Items Purchased:</strong></p>
-  //     ${itemsList}
-  //     <p><strong>Total Paid:</strong> £${amountPaid} ${currency}</p>
-  //   `,
-  // };
   const mailOptions = {
-    from: 'alabilekanemmanuel@gmail.com',
-    to: 'alabilekanemmanuel@gmail.com',
-    subject: `Test Email`,
-    text: `This is a test email.`,
+    from: process.env.EMAIL_USER,
+    to: process.env.EMAIL_USER,
+    subject: `New Payment for ${eventName}`,
+    html: `
+       <h2>Payment Confirmation</h2>
+       <p><strong>Event:</strong> ${eventName}</p>
+       <p><strong>Name:</strong> ${customerName}</p>
+       <p><strong>Email:</strong> ${customerEmail}</p>
+       <p><strong>Items Purchased:</strong></p>
+       ${itemsList}
+       <p><strong>Total Paid:</strong> £${amountPaid} ${currency}</p>
+     `,
   };
 
   try {
-    const info = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully!", info.response);
+    await transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log("Error occurred: ", error);
+      }
+      console.log("Email sent: ", info.response);
+    });
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    console.error(error);
   }
 };
 
