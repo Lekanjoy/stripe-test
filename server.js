@@ -1,6 +1,6 @@
 const express = require("express");
 const Stripe = require("stripe");
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
@@ -62,7 +62,7 @@ app.post(
       const itemsList = items
         .map(
           (item) => `
-${item.name} - ${currency}${item.price} x ${item.quantity}
+${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity})
 `
         )
         .join("");
@@ -157,16 +157,16 @@ const sendEmail = async (
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
-    to: process.env.EMAIL_USER, 
+    to: process.env.EMAIL_USER,
     subject: `New Payment for ${eventName}`,
     html: `
        <h2>Payment Confirmation</h2>
-       <p><strong>Event:</strong> ${eventName}</p>
+       <p><strong>Event Name:</strong> ${eventName}</p>
        <p><strong>Name:</strong> ${customerName}</p>
        <p><strong>Email:</strong> ${customerEmail}</p>
        <p><strong>Items Purchased:</strong></p>
        ${itemsList}
-       <p><strong>Total Paid:</strong> £${amountPaid} ${currency}</p>
+       <p><strong>Total Paid:</strong> ${amountPaid} ${currency}</p>
      `,
   };
 
