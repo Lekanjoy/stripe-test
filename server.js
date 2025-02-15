@@ -1,5 +1,6 @@
 const express = require("express");
 const Stripe = require("stripe");
+const nodemailer = require('nodemailer');
 const dotenv = require("dotenv");
 const cors = require("cors");
 
@@ -176,5 +177,6 @@ const sendEmail = async (
     console.error("Error occurred while sending email: ", error);
   }
 };
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
