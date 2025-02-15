@@ -3,7 +3,7 @@ const Stripe = require("stripe");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const  Airtable  = require("airtable");
+const Airtable = require("airtable");
 
 dotenv.config();
 
@@ -68,9 +68,10 @@ app.post(
       // Format purchased items list
       const itemsList = items
         .map(
-          (item) => `
-— ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
-`
+          (item) =>
+            ` — ${item.name} (${item.price.toFixed(2)} ${currency} x ${
+              item.quantity
+            }) <br>`
         )
         .join("");
 
@@ -80,25 +81,27 @@ app.post(
 
       // Send email notification and append data to airtable
       try {
-        // await sendEmail(
-        //   customerEmail,
-        //   customerPhone,
-        //   customerName,
-        //   eventName,
-        //   itemsList,
-        //   amountPaid,
-        //   currency
-        // );
-        // Append data to Airtable
-        await appendToAirtable({
-          customerName,
-          customerEmail,
-          customerPhone,
-          eventName,
-          itemsList,
-          amountPaid,
-          currency,
-        });
+        // Run sendEmail and appendToAirtable simultaneously
+        await Promise.all([
+          sendEmail(
+            customerEmail,
+            customerPhone,
+            customerName,
+            eventName,
+            itemsList,
+            amountPaid,
+            currency
+          ),
+          appendToAirtable({
+            customerName,
+            customerEmail,
+            customerPhone,
+            eventName,
+            itemsList,
+            amountPaid,
+            currency,
+          }),
+        ]);
       } catch (error) {
         console.error("Failed to send email:", error);
       }
@@ -234,11 +237,11 @@ const appendToAirtable = async (data) => {
           Timestamp: new Date().toLocaleString(),
           "Customer Name": data.customerName,
           "Customer Email": data.customerEmail,
-          "Phone Number": data.phoneNumber,
+          "Phone Number": data.customerPhone,
           "Event Name": data.eventName,
           "Amount Paid": data.amountPaid,
           "Items Purchased": data.itemsList,
-          "Currency": data.currency,
+          Currency: data.currency,
         },
       },
     ]);
