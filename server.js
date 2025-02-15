@@ -51,6 +51,7 @@ app.post(
       const customerEmail =
         session.customer_details?.email || "No Email Provided";
       const customerName = session.customer_details?.name || "No Name Provided";
+      const customerPhone = session.customer_details?.phone || "No Phone Provided";
       const amountPaid = ((session.amount_total || 0) / 100).toFixed(2); // Convert from cents
       const currency = (session.currency || "usd").toUpperCase();
       const eventName = session.metadata?.eventName || "Unknown Event";
@@ -75,6 +76,7 @@ ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity})
       try {
         await sendEmail(
           customerEmail,
+          customerPhone,
           customerName,
           eventName,
           itemsList,
@@ -114,6 +116,9 @@ app.post("/create-checkout-session", async (req, res) => {
       mode: "payment",
       success_url: `${process.env.FRONTEND_URL}/success.html?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.FRONTEND_URL}/cancel.html`,
+      phone_number_collection: {
+        enabled: true,
+      },
       metadata: {
         eventName: eventName, // Store event name
         items: JSON.stringify(items), // Store items as JSON
@@ -141,6 +146,7 @@ app.get("/checkout-session", async (req, res) => {
 // ✅ Function to Send Email
 const sendEmail = async (
   customerEmail,
+  customerPhone,
   customerName,
   eventName,
   itemsList,
@@ -164,6 +170,7 @@ const sendEmail = async (
        <p><strong>Event Name:</strong> ${eventName}</p>
        <p><strong>Name:</strong> ${customerName}</p>
        <p><strong>Email:</strong> ${customerEmail}</p>
+       <p><strong>Phone:</strong> ${customerPhone}</p>
        <p><strong>Items Purchased:</strong></p>
        ${itemsList}
        <p><strong>Total Paid:</strong> ${amountPaid} ${currency}</p>
