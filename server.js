@@ -3,11 +3,16 @@ const Stripe = require("stripe");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const  Airtable  = require("airtable");
 
 dotenv.config();
 
 const app = express();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+  process.env.AIRTABLE_BASE_ID
+);
 
 // CORS configuration
 const corsOptions = {
@@ -64,7 +69,7 @@ app.post(
       const itemsList = items
         .map(
           (item) => `
--- ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
+— ${item.name} (${item.price.toFixed(2)} ${currency} x ${item.quantity}) <br>
 `
         )
         .join("");
@@ -73,17 +78,27 @@ app.post(
         `📨 Sending email for event: ${eventName}, Customer: ${customerEmail}`
       );
 
-      // Send email notification
+      // Send email notification and append data to airtable
       try {
-        await sendEmail(
+        // await sendEmail(
+        //   customerEmail,
+        //   customerPhone,
+        //   customerName,
+        //   eventName,
+        //   itemsList,
+        //   amountPaid,
+        //   currency
+        // );
+        // Append data to Airtable
+        await appendToAirtable({
+          customerName,
           customerEmail,
           customerPhone,
-          customerName,
           eventName,
           itemsList,
           amountPaid,
-          currency
-        );
+          currency,
+        });
       } catch (error) {
         console.error("Failed to send email:", error);
       }
@@ -195,7 +210,7 @@ const sendEmail = async (
       ${itemsList}
     </div>
     <p style="color: #555555; font-size: 14px; margin-bottom: 10px;">
-      <strong style="color: #333333;">Total Paid:</strong> £${amountPaid} ${currency}
+      <strong style="color: #333333;">Total Paid:</strong> ${amountPaid} ${currency}
     </p>
   </div>
 </div>
@@ -207,6 +222,29 @@ const sendEmail = async (
     console.log("Email sent: ", info.response);
   } catch (error) {
     console.error("Error occurred while sending email: ", error);
+  }
+};
+
+// Send Payment Details to Airtable
+const appendToAirtable = async (data) => {
+  try {
+    await base("Payments").create([
+      {
+        fields: {
+          Timestamp: new Date().toLocaleString(),
+          "Customer Name": data.customerName,
+          "Customer Email": data.customerEmail,
+          "Phone Number": data.phoneNumber,
+          "Event Name": data.eventName,
+          "Amount Paid": data.amountPaid,
+          "Items Purchased": data.itemsList,
+          "Currency": data.currency,
+        },
+      },
+    ]);
+    console.log("✅ Data appended to Airtable!");
+  } catch (error) {
+    console.error("❌ Error appending to Airtable:", error);
   }
 };
 
