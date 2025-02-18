@@ -189,8 +189,8 @@ const sendEmail = async (
     subject: `New Payment for ${eventName}`,
     html: `
     <div style="font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px;">
-  <a href="https://gohangers-new.vercel.app" style="display: block; width: 100%; text-align: center; padding: 8px; margin-bottom: 20px; background-color: #ffffff;">
-    <img src="https://gohangers-new.vercel.app/assets/Home/GOHANGERS_Logotype-strap.png" alt="Gohangers Logo" style="width: 100px; height: auto;">
+  <a href="https://gohangers.com style="display: block; width: 100%; text-align: center; padding: 8px; margin-bottom: 20px; background-color: #ffffff;">
+    <img src="https://gohangers.com/assets/Home/GOHANGERS_Logotype-strap.png" alt="Gohangers Logo" style="width: 100px; height: auto;">
   </a>
   <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
     <h2 style="color: #333333; margin-bottom: 20px;">Payment Confirmation</h2>

@@ -1,34 +1,45 @@
 require("dotenv").config();
+const Airtable = require("airtable");
 
-const nodemailer = require("nodemailer");
+// Initialize Airtable
+const base = new Airtable({ apiKey: process.env.AIRTABLE_API_KEY }).base(
+  process.env.AIRTABLE_BASE_ID
+);
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: process.env.SMTP_PORT,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-const mailOptions = {
-  from: process.env.EMAIL_USER,
-  to: "alabilekanemmanuel@gmail.com",
-  subject: `New Payment for SlamDunk`,
-  html: `
-       <h2>Payment Confirmation</h2>
-       <p><strong>Event:</strong> SlamDunk</p>
-       <p><strong>Name:</strong> Joshua</p>
-       <p><strong>Email:</strong> joshau@gohangers.com</p>
-       <p><strong>Items Purchased:</strong></p>
-       <p><strong>Total Paid:</strong> £40</p>
-     `,
+// Function to append data to Airtable
+const appendToAirtable = async (data) => {
+  try {
+    await base("Payments").create([
+      {
+        fields: {
+          "Timestamp": new Date().toLocaleString(),
+          "Customer Name": data.customerName,
+          "Customer Email": data.customerEmail,
+          "Event Name": data.eventName,
+          "Items Purchased": data.itemsList,
+          "Amount Paid": data.amountPaid,
+          "Currency": data.currency,
+        },
+      },
+    ]);
+    console.log("✅ Data appended to Airtable!");
+  } catch (error) {
+    console.error("❌ Error appending to Airtable:", error);
+  }
 };
 
-transporter.sendMail(mailOptions, (error, info) => {
-  if (error) {
-    return console.log("Error occurred: ", error);
-  }
-  console.log("Email sent: ", info.response);
-});
+// Test data (matching your data structure)
+const testData = {
+  customerName: "John Doe",
+  customerEmail: "john.doe@example.com",
+  eventName: "Test Event",
+  itemsList: `
+    Product A - $10 x 2
+    Product B - $15 x 1
+  `,
+  amountPaid: '35.0',
+  currency: "USD",
+};
+
+// Run the test
+appendToAirtable(testData);
